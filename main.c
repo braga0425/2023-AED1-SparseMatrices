@@ -99,9 +99,28 @@ void matrix_setelem(Matrix* m, int x, int y, float elem) {
     }
 }
 
-void matrix_print(Matrix* m, int numRows, int numCols) {
-    for (int i = 1; i <= numRows; i++) {
-        for (int j = 1; j <= numCols; j++) {
+void matrix_print(Matrix* m) {
+    int maxLine = -1, maxColumn = -1;
+
+    // Encontre o número máximo de linhas e colunas com base nos elementos existentes
+    Matrix* row_head = m->below;
+    while (row_head != m) {
+        Matrix* current = row_head->right;
+        while (current != row_head) {
+            if (current->line > maxLine) {
+                maxLine = current->line;
+            }
+            if (current->column > maxColumn) {
+                maxColumn = current->column;
+            }
+            current = current->right;
+        }
+        row_head = row_head->below;
+    }
+
+    // Imprima a matriz preenchendo com zero onde não há valores
+    for (int i = 1; i <= maxLine; i++) {
+        for (int j = 1; j <= maxColumn; j++) {
             float elem = matrix_getelem(m, i, j);
             printf("%.2f\t", elem);
         }
@@ -146,7 +165,10 @@ int main() {
     fclose(file);
 
     // Imprime a matriz no formato desejado, incluindo zeros
-    matrix_print(matrix, numRows, numCols);
+    matrix_print(matrix);
+
+    // Destruir a matriz quando não for mais necessária
+    matrix_destroy(matrix);
 
     return 0;
 }
